@@ -13,15 +13,17 @@
     background-color: #ffc0cb; /* baby pink */
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     height: 100vh;
     flex-direction: column;
     font-family: 'Press Start 2P', cursive;
     color: #ff69b4;
+    position: relative;
   }
 
   #title {
-    font-size: 24px;
+    font-size: 32px; /* bigger */
+    margin-top: 50px; /* move down from top a bit */
     text-shadow: 2px 2px #fff;
     z-index: 10;
     user-select: none;
@@ -34,6 +36,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    z-index: 5;
   }
 
   #buttons {
@@ -65,17 +68,18 @@
     position: relative;
   }
 
-  /* Pixel heart using CSS shape */
+  /* Pixel heart */
   .heart {
     position: absolute;
     width: 16px;
     height: 16px;
-    background-color: red;
+    background: red;
     clip-path: polygon(
       50% 0%, 61% 6%, 68% 14%, 75% 23%, 77% 32%, 75% 41%, 68% 50%, 
       50% 66%, 32% 50%, 25% 41%, 23% 32%, 25% 23%, 32% 14%, 39% 6%
     );
     pointer-events: none;
+    z-index: 2;
   }
 
   .shatter {
@@ -95,6 +99,7 @@
     0% { opacity: 1; }
     100% { opacity: 0; }
   }
+
 </style>
 </head>
 <body>
@@ -126,33 +131,27 @@
     heart.classList.add('heart');
     heart.style.left = Math.random() * (window.innerWidth - 20) + 'px';
     heart.style.top = '-20px';
-    heart.style.animationDuration = (3 + Math.random() * 2) + 's';
+
+    document.body.appendChild(heart);
 
     // Animate falling
     const fallDistance = window.innerHeight + 40;
+    const duration = 4000 + Math.random() * 2000;
     heart.animate(
       [
         { transform: 'translateY(0)' },
         { transform: `translateY(${fallDistance}px)` }
       ],
-      {
-        duration: (3 + Math.random() * 2) * 1000,
-        iterations: 1,
-        easing: 'linear'
-      }
+      { duration: duration, iterations: 1, easing: 'linear' }
     );
 
-    document.body.appendChild(heart);
-
-    setTimeout(() => {
-      heart.remove();
-    }, (3 + Math.random() * 2) * 1000);
+    setTimeout(() => heart.remove(), duration);
   }
 
-  // Hearts keep raining until Yes clicked
+  // Start hearts raining continuously
   heartsInterval = setInterval(createHeart, 200);
 
-  // Move "No" button away inside screen
+  // Move "No" button inside screen
   document.addEventListener('mousemove', (e) => {
     const rect = noBtn.getBoundingClientRect();
     const distance = 50;
@@ -170,7 +169,7 @@
 
   // Yes button click sequence
   yesBtn.addEventListener('click', () => {
-    clearInterval(heartsInterval); // stop new hearts
+    clearInterval(heartsInterval); // stop hearts
     cat1.style.display = 'none';
 
     // Show cat2 after 0.5s
@@ -182,17 +181,28 @@
         cat2.style.display = 'none';
         cat3.style.display = 'block';
 
-        // Show glass shatter
-        const shatter = document.createElement('div');
-        shatter.classList.add('shatter');
-        document.body.appendChild(shatter);
+        // Slam cat3 toward screen
+        cat3.animate(
+          [
+            { transform: 'translate(-50%, -50%) scale(1)' },
+            { transform: 'translate(-50%, -50%) scale(3)' }
+          ],
+          { duration: 500, fill: 'forwards', easing: 'ease-in' }
+        );
 
-        setTimeout(() => shatter.remove(), 1000);
+        // Show glass shatter shortly after slam
+        setTimeout(() => {
+          const shatter = document.createElement('div');
+          shatter.classList.add('shatter');
+          document.body.appendChild(shatter);
+          setTimeout(() => shatter.remove(), 1000);
+        }, 500);
+
       }, 2000);
 
     }, 500);
   });
-</script>
 
+</script>
 </body>
 </html>
