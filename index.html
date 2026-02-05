@@ -11,22 +11,22 @@
     margin: 0;
     overflow: hidden;
     background-color: #ffc0cb; /* baby pink */
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    height: 100vh;
-    flex-direction: column;
     font-family: 'Press Start 2P', cursive;
-    color: #ff69b4;
     position: relative;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
   }
 
   #title {
-    font-size: 32px; /* bigger */
-    margin-top: 50px; /* move down from top a bit */
+    font-size: 32px;
+    margin-top: 50px;
     text-shadow: 2px 2px #fff;
     z-index: 10;
     user-select: none;
+    text-align: center;
   }
 
   #cat-container img {
@@ -34,10 +34,12 @@
     max-width: 300px;
     transition: transform 0.5s;
     top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateY(-50%);
     z-index: 5;
   }
+
+  #cat1 { left: 55%; } /* slightly to the right */
+  #cat2, #cat3 { left: 50%; transform: translate(-50%, -50%); }
 
   #buttons {
     position: absolute;
@@ -57,27 +59,12 @@
     text-shadow: 1px 1px #fff;
   }
 
-  #yes {
-    background-color: #ff69b4;
-    color: white;
-  }
+  #yes { background-color: #ff69b4; color: white; }
+  #no { background-color: #fff; color: #ff69b4; position: relative; }
 
-  #no {
-    background-color: #fff;
-    color: #ff69b4;
-    position: relative;
-  }
-
-  /* Pixel heart */
   .heart {
     position: absolute;
-    width: 16px;
-    height: 16px;
-    background: red;
-    clip-path: polygon(
-      50% 0%, 61% 6%, 68% 14%, 75% 23%, 77% 32%, 75% 41%, 68% 50%, 
-      50% 66%, 32% 50%, 25% 41%, 23% 32%, 25% 23%, 32% 14%, 39% 6%
-    );
+    font-size: 24px;
     pointer-events: none;
     z-index: 2;
   }
@@ -99,7 +86,6 @@
     0% { opacity: 1; }
     100% { opacity: 0; }
   }
-
 </style>
 </head>
 <body>
@@ -125,18 +111,19 @@
   const cat3 = document.getElementById('cat3');
   let heartsInterval;
 
-  // Function to create pixel hearts
+  // Create emoji heart
   function createHeart() {
     const heart = document.createElement('div');
     heart.classList.add('heart');
-    heart.style.left = Math.random() * (window.innerWidth - 20) + 'px';
-    heart.style.top = '-20px';
+    heart.textContent = '❤️';
+    heart.style.left = Math.random() * (window.innerWidth - 30) + 'px';
+    heart.style.top = '-30px';
 
     document.body.appendChild(heart);
 
-    // Animate falling
-    const fallDistance = window.innerHeight + 40;
     const duration = 4000 + Math.random() * 2000;
+    const fallDistance = window.innerHeight + 50;
+
     heart.animate(
       [
         { transform: 'translateY(0)' },
@@ -148,7 +135,7 @@
     setTimeout(() => heart.remove(), duration);
   }
 
-  // Start hearts raining continuously
+  // Hearts rain continuously until Yes clicked
   heartsInterval = setInterval(createHeart, 200);
 
   // Move "No" button inside screen
@@ -167,9 +154,9 @@
     }
   });
 
-  // Yes button click sequence
+  // Yes click sequence
   yesBtn.addEventListener('click', () => {
-    clearInterval(heartsInterval); // stop hearts
+    clearInterval(heartsInterval); // stop new hearts
     cat1.style.display = 'none';
 
     // Show cat2 after 0.5s
@@ -181,28 +168,27 @@
         cat2.style.display = 'none';
         cat3.style.display = 'block';
 
-        // Slam cat3 toward screen
+        // Slam cat3 from far away
         cat3.animate(
           [
-            { transform: 'translate(-50%, -50%) scale(1)' },
+            { transform: 'translate(-50%, -50%) scale(0.1)' },
             { transform: 'translate(-50%, -50%) scale(3)' }
           ],
-          { duration: 500, fill: 'forwards', easing: 'ease-in' }
+          { duration: 800, fill: 'forwards', easing: 'ease-in' }
         );
 
-        // Show glass shatter shortly after slam
+        // Show glass shatter right after slam
         setTimeout(() => {
           const shatter = document.createElement('div');
           shatter.classList.add('shatter');
           document.body.appendChild(shatter);
           setTimeout(() => shatter.remove(), 1000);
-        }, 500);
+        }, 800);
 
       }, 2000);
 
     }, 500);
   });
-
 </script>
 </body>
 </html>
