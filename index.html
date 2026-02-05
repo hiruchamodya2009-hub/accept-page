@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Interactive Cat Page</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap'); /* Pixel font */
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
   body {
     margin: 0;
@@ -16,15 +16,13 @@
     align-items: center;
     height: 100vh;
     flex-direction: column;
-    position: relative;
-    font-family: 'Press Start 2P', cursive; /* pixel font */
+    font-family: 'Press Start 2P', cursive;
     color: #ff69b4;
   }
 
   #title {
     font-size: 24px;
-    margin-bottom: 150px;
-    text-shadow: 2px 2px #fff; /* pixel-y look */
+    text-shadow: 2px 2px #fff;
     z-index: 10;
     user-select: none;
   }
@@ -33,6 +31,9 @@
     position: absolute;
     max-width: 300px;
     transition: transform 0.5s;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
   #buttons {
@@ -49,7 +50,7 @@
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    font-family: 'Press Start 2P', cursive; /* pixel font */
+    font-family: 'Press Start 2P', cursive;
     text-shadow: 1px 1px #fff;
   }
 
@@ -64,26 +65,19 @@
     position: relative;
   }
 
-  /* Pixel heart */
+  /* Pixel heart using CSS shape */
   .heart {
     position: absolute;
     width: 16px;
     height: 16px;
-    background-color: #ff0000;
+    background-color: red;
     clip-path: polygon(
       50% 0%, 61% 6%, 68% 14%, 75% 23%, 77% 32%, 75% 41%, 68% 50%, 
       50% 66%, 32% 50%, 25% 41%, 23% 32%, 25% 23%, 32% 14%, 39% 6%
     );
-    animation: fall linear;
     pointer-events: none;
   }
 
-  @keyframes fall {
-    0% { transform: translateY(-20px); opacity: 1; }
-    100% { transform: translateY(100vh); opacity: 0; }
-  }
-
-  /* Glass shatter effect */
   .shatter {
     position: fixed;
     top: 0;
@@ -130,19 +124,35 @@
   function createHeart() {
     const heart = document.createElement('div');
     heart.classList.add('heart');
-    heart.style.left = Math.random() * window.innerWidth + 'px';
-    heart.style.animationDuration = (2 + Math.random() * 3) + 's';
+    heart.style.left = Math.random() * (window.innerWidth - 20) + 'px';
+    heart.style.top = '-20px';
+    heart.style.animationDuration = (3 + Math.random() * 2) + 's';
+
+    // Animate falling
+    const fallDistance = window.innerHeight + 40;
+    heart.animate(
+      [
+        { transform: 'translateY(0)' },
+        { transform: `translateY(${fallDistance}px)` }
+      ],
+      {
+        duration: (3 + Math.random() * 2) * 1000,
+        iterations: 1,
+        easing: 'linear'
+      }
+    );
+
     document.body.appendChild(heart);
 
     setTimeout(() => {
       heart.remove();
-    }, 5000);
+    }, (3 + Math.random() * 2) * 1000);
   }
 
-  // Start hearts raining
+  // Hearts keep raining until Yes clicked
   heartsInterval = setInterval(createHeart, 200);
 
-  // Move "No" button away from cursor
+  // Move "No" button away inside screen
   document.addEventListener('mousemove', (e) => {
     const rect = noBtn.getBoundingClientRect();
     const distance = 50;
@@ -160,19 +170,17 @@
 
   // Yes button click sequence
   yesBtn.addEventListener('click', () => {
-    clearInterval(heartsInterval); // stop hearts
+    clearInterval(heartsInterval); // stop new hearts
     cat1.style.display = 'none';
 
     // Show cat2 after 0.5s
     setTimeout(() => {
       cat2.style.display = 'block';
-      cat2.style.transform = 'scale(1)';
 
-      // Show cat3 after 1s
+      // Show cat3 after 2s
       setTimeout(() => {
         cat2.style.display = 'none';
         cat3.style.display = 'block';
-        cat3.style.transform = 'scaleX(-1)'; // flip back to front
 
         // Show glass shatter
         const shatter = document.createElement('div');
@@ -180,7 +188,7 @@
         document.body.appendChild(shatter);
 
         setTimeout(() => shatter.remove(), 1000);
-      }, 1000);
+      }, 2000);
 
     }, 500);
   });
