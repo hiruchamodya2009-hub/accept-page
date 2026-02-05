@@ -1,107 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Accept?</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Cat Page</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap'); /* Pixel font */
 
-  <!-- Pixel font -->
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  body {
+    margin: 0;
+    overflow: hidden;
+    background-color: #ffc0cb; /* baby pink */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+    position: relative;
+    font-family: 'Press Start 2P', cursive; /* pixel font */
+    color: #ff69b4;
+  }
 
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      background: #f8c8dc;
-      font-family: 'Press Start 2P', cursive;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
+  #title {
+    font-size: 24px;
+    margin-bottom: 150px;
+    text-shadow: 2px 2px #fff; /* pixel-y look */
+    z-index: 10;
+    user-select: none;
+  }
 
-    h1 {
-      color: #b3003b;
-      text-align: center;
-      margin-bottom: 20px;
-    }
+  #cat-container img {
+    position: absolute;
+    max-width: 300px;
+    transition: transform 0.5s;
+  }
 
-    img {
-      width: 300px;
-      image-rendering: pixelated;
-      transition: transform 0.5s ease;
-    }
+  #buttons {
+    position: absolute;
+    bottom: 50px;
+    display: flex;
+    gap: 50px;
+    z-index: 10;
+  }
 
-    button {
-      margin: 10px;
-      padding: 12px 20px;
-      font-family: inherit;
-      background: #ff9fcf;
-      border: 4px solid #b3003b;
-      color: #b3003b;
-      cursor: pointer;
-    }
+  button {
+    padding: 15px 30px;
+    font-size: 16px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Press Start 2P', cursive; /* pixel font */
+    text-shadow: 1px 1px #fff;
+  }
 
-    .heart {
-      position: absolute;
-      color: red;
-      font-size: 16px;
-      animation: fall 3s linear forwards;
-    }
+  #yes {
+    background-color: #ff69b4;
+    color: white;
+  }
 
-    @keyframes fall {
-      from { transform: translateY(-10px); }
-      to { transform: translateY(110vh); }
-    }
+  #no {
+    background-color: #fff;
+    color: #ff69b4;
+    position: relative;
+  }
 
-    .shake {
-      animation: shake 0.3s;
-    }
+  /* Pixel heart */
+  .heart {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background-color: #ff0000;
+    clip-path: polygon(
+      50% 0%, 61% 6%, 68% 14%, 75% 23%, 77% 32%, 75% 41%, 68% 50%, 
+      50% 66%, 32% 50%, 25% 41%, 23% 32%, 25% 23%, 32% 14%, 39% 6%
+    );
+    animation: fall linear;
+    pointer-events: none;
+  }
 
-    @keyframes shake {
-      0% { transform: translate(0, 0); }
-      25% { transform: translate(10px, 5px); }
-      50% { transform: translate(-10px, -5px); }
-      75% { transform: translate(5px, -10px); }
-      100% { transform: translate(0, 0); }
-    }
-  </style>
+  @keyframes fall {
+    0% { transform: translateY(-20px); opacity: 1; }
+    100% { transform: translateY(100vh); opacity: 0; }
+  }
+
+  /* Glass shatter effect */
+  .shatter {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://i.imgur.com/3G9i6K6.png') center center no-repeat;
+    background-size: cover;
+    pointer-events: none;
+    animation: fadeOut 1s forwards;
+    z-index: 20;
+  }
+
+  @keyframes fadeOut {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+</style>
 </head>
-
 <body>
 
-  <h1>Do you accept?</h1>
+<div id="title">Do you accept?</div>
 
-  <img id="cat" src="cat_innocent.png" alt="cat">
+<div id="cat-container">
+  <img id="cat1" src="cat1.png" style="display:block;">
+  <img id="cat2" src="cat2.png" style="display:none;">
+  <img id="cat3" src="cat3.png" style="display:none;">
+</div>
 
-  <div>
-    <button onclick="yesClicked()">YES</button>
-    <button>NO</button>
-  </div>
+<div id="buttons">
+  <button id="yes">Yes</button>
+  <button id="no">No</button>
+</div>
 
-  <script>
-    function yesClicked() {
-      const cat = document.getElementById("cat");
+<script>
+  const yesBtn = document.getElementById('yes');
+  const noBtn = document.getElementById('no');
+  const cat1 = document.getElementById('cat1');
+  const cat2 = document.getElementById('cat2');
+  const cat3 = document.getElementById('cat3');
+  let heartsInterval;
 
-      // hearts rain
-      for (let i = 0; i < 30; i++) {
-        const heart = document.createElement("div");
-        heart.className = "heart";
-        heart.innerText = "❤";
-        heart.style.left = Math.random() * window.innerWidth + "px";
-        document.body.appendChild(heart);
+  // Function to create pixel hearts
+  function createHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.style.left = Math.random() * window.innerWidth + 'px';
+    heart.style.animationDuration = (2 + Math.random() * 3) + 's';
+    document.body.appendChild(heart);
 
-        setTimeout(() => heart.remove(), 3000);
-      }
+    setTimeout(() => {
+      heart.remove();
+    }, 5000);
+  }
 
-      // cat "throw"
-      cat.style.transform = "translateX(200px) rotate(20deg)";
+  // Start hearts raining
+  heartsInterval = setInterval(createHeart, 200);
 
-      // screen shake
-      document.body.classList.add("shake");
-      setTimeout(() => document.body.classList.remove("shake"), 300);
+  // Move "No" button away from cursor
+  document.addEventListener('mousemove', (e) => {
+    const rect = noBtn.getBoundingClientRect();
+    const distance = 50;
+    if (
+      e.clientX > rect.left - distance &&
+      e.clientX < rect.right + distance &&
+      e.clientY > rect.top - distance &&
+      e.clientY < rect.bottom + distance
+    ) {
+      const x = Math.random() * (window.innerWidth - rect.width);
+      const y = Math.random() * (window.innerHeight - rect.height);
+      noBtn.style.transform = `translate(${x - rect.left}px, ${y - rect.top}px)`;
     }
-  </script>
+  });
+
+  // Yes button click sequence
+  yesBtn.addEventListener('click', () => {
+    clearInterval(heartsInterval); // stop hearts
+    cat1.style.display = 'none';
+
+    // Show cat2 after 0.5s
+    setTimeout(() => {
+      cat2.style.display = 'block';
+      cat2.style.transform = 'scale(1)';
+
+      // Show cat3 after 1s
+      setTimeout(() => {
+        cat2.style.display = 'none';
+        cat3.style.display = 'block';
+        cat3.style.transform = 'scaleX(-1)'; // flip back to front
+
+        // Show glass shatter
+        const shatter = document.createElement('div');
+        shatter.classList.add('shatter');
+        document.body.appendChild(shatter);
+
+        setTimeout(() => shatter.remove(), 1000);
+      }, 1000);
+
+    }, 500);
+  });
+</script>
 
 </body>
 </html>
