@@ -21,25 +21,26 @@
   }
 
   #title {
-    font-size: 32px;
+    font-size: 36px; /* slightly bigger */
     margin-top: 50px;
     text-shadow: 2px 2px #fff;
     z-index: 10;
     user-select: none;
     text-align: center;
+    transition: opacity 0.5s;
   }
 
   #cat-container img {
     position: absolute;
     max-width: 300px;
-    transition: transform 0.5s;
+    transition: transform 0.5s, opacity 0.5s;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translate(-50%, -50%);
     z-index: 5;
   }
 
-  #cat1 { left: 55%; } /* slightly to the right */
-  #cat2, #cat3 { left: 50%; transform: translate(-50%, -50%); }
+  #cat1 { left: 52%; } /* slightly more centered */
+  #cat2, #cat3 { left: 50%; opacity: 0; }
 
   #buttons {
     position: absolute;
@@ -47,6 +48,7 @@
     display: flex;
     gap: 50px;
     z-index: 10;
+    transition: opacity 0.5s;
   }
 
   button {
@@ -64,7 +66,7 @@
 
   .heart {
     position: absolute;
-    font-size: 24px;
+    font-size: 28px;
     pointer-events: none;
     z-index: 2;
   }
@@ -94,8 +96,8 @@
 
 <div id="cat-container">
   <img id="cat1" src="cat1.png" style="display:block;">
-  <img id="cat2" src="cat2.png" style="display:none;">
-  <img id="cat3" src="cat3.png" style="display:none;">
+  <img id="cat2" src="cat2.png">
+  <img id="cat3" src="cat3.png">
 </div>
 
 <div id="buttons">
@@ -109,9 +111,12 @@
   const cat1 = document.getElementById('cat1');
   const cat2 = document.getElementById('cat2');
   const cat3 = document.getElementById('cat3');
+  const title = document.getElementById('title');
+  const buttons = document.getElementById('buttons');
+
   let heartsInterval;
 
-  // Create emoji heart
+  // Create emoji hearts
   function createHeart() {
     const heart = document.createElement('div');
     heart.classList.add('heart');
@@ -121,7 +126,7 @@
 
     document.body.appendChild(heart);
 
-    const duration = 4000 + Math.random() * 2000;
+    const duration = 3000 + Math.random() * 2000;
     const fallDistance = window.innerHeight + 50;
 
     heart.animate(
@@ -135,8 +140,8 @@
     setTimeout(() => heart.remove(), duration);
   }
 
-  // Hearts rain continuously until Yes clicked
-  heartsInterval = setInterval(createHeart, 200);
+  // More hearts, rain continuously
+  heartsInterval = setInterval(createHeart, 100);
 
   // Move "No" button inside screen
   document.addEventListener('mousemove', (e) => {
@@ -157,37 +162,42 @@
   // Yes click sequence
   yesBtn.addEventListener('click', () => {
     clearInterval(heartsInterval); // stop new hearts
+
+    // Fade out title and buttons
+    title.style.opacity = '0';
+    buttons.style.opacity = '0';
+
+    // Hide cat1
     cat1.style.display = 'none';
 
-    // Show cat2 after 0.5s
+    // Show cat2 slightly to center and fade in
     setTimeout(() => {
-      cat2.style.display = 'block';
-
-      // Show cat3 after 2s
-      setTimeout(() => {
-        cat2.style.display = 'none';
-        cat3.style.display = 'block';
-
-        // Slam cat3 from far away
-        cat3.animate(
-          [
-            { transform: 'translate(-50%, -50%) scale(0.1)' },
-            { transform: 'translate(-50%, -50%) scale(3)' }
-          ],
-          { duration: 800, fill: 'forwards', easing: 'ease-in' }
-        );
-
-        // Show glass shatter right after slam
-        setTimeout(() => {
-          const shatter = document.createElement('div');
-          shatter.classList.add('shatter');
-          document.body.appendChild(shatter);
-          setTimeout(() => shatter.remove(), 1000);
-        }, 800);
-
-      }, 2000);
-
+      cat2.style.opacity = '1';
     }, 500);
+
+    // Show cat3 after 2s
+    setTimeout(() => {
+      cat2.style.opacity = '0';
+      cat3.style.opacity = '1';
+
+      // Slam cat3 from far away
+      cat3.animate(
+        [
+          { transform: 'translate(-50%, -50%) scale(0.1)' },
+          { transform: 'translate(-50%, -50%) scale(3)' }
+        ],
+        { duration: 1000, fill: 'forwards', easing: 'ease-in' }
+      );
+
+      // Show glass shatter after slam
+      setTimeout(() => {
+        const shatter = document.createElement('div');
+        shatter.classList.add('shatter');
+        document.body.appendChild(shatter);
+        setTimeout(() => shatter.remove(), 1000);
+      }, 1000);
+
+    }, 2500); // after 2.5s
   });
 </script>
 </body>
